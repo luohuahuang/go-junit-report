@@ -125,6 +125,17 @@ func Parse(r io.Reader, pkgName string) (*Report, error) {
 
 			// clear the current build package, so output lines won't be added to that build
 			capturedPackage = ""
+		} if strings.HasPrefix(line, "log=== RUN ") {
+			// new test
+			cur = strings.TrimSpace(line[11:])
+			tests = append(tests, &Test{
+				Name:   cur,
+				Result: FAIL,
+				Output: make([]string, 0),
+			})
+
+			// clear the current build package, so output lines won't be added to that build
+			capturedPackage = ""
 		} else if matches := regexBenchmark.FindStringSubmatch(line); len(matches) == 6 {
 			bytes, _ := strconv.Atoi(matches[4])
 			allocs, _ := strconv.Atoi(matches[5])
